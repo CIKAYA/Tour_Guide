@@ -68,9 +68,9 @@ def get_asuransi():
     data_asuransi = get_data_asuransi_from_web()
     return data_asuransi
 
-# Fungsi untuk mengambil data tourguide dari web hosting lain
+# Fungsi untuk mengambil data objek wisata dari web hosting lain
 def get_data_objekWisata_from_web():
-    url = "https://example.com/api/pajak"  # Ganti dengan URL yang sebenarnya
+    url = "https://pajakobjekwisata.onrender.com/"  # Ganti dengan URL yang sebenarnya
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
@@ -135,7 +135,7 @@ def get_government():
 
 # Fungsi untuk mengambil data bank dari web hosting lain
 def get_data_bank_from_web():
-    url = "https://example.com/api/pajak"  # Ganti dengan URL yang sebenarnya
+    url = "https://undelaying-semaphor.000webhostapp.com/"  # Ganti dengan URL yang sebenarnya
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
