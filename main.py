@@ -183,6 +183,8 @@ class TourGuideObjekWisata(BaseModel):
     id_guider: str
     objekwisata: ObjekWisata
 
+
+
 # Endpoint untuk mendapatkan data gabungan tour guide dan objek wisata
 @app.get("/Guider+Objek", response_model=List[TourGuideObjekWisata])
 def get_combined_data():
@@ -191,7 +193,6 @@ def get_combined_data():
 
 
 # Fungsi untuk menggabungkan data tour guide dan bank
-# Function to combine tour guide and bank data
 def combine_tour_guide_bank():
     tour_guide_data = get_tourguide()
     bank_data = get_bank()
@@ -212,7 +213,7 @@ class TourGuideBank(BaseModel):
     bank: Bank
 
 # Endpoint untuk mendapatkan data gabungan tour guide dan bank
-@app.get("/combined", response_model=List[TourGuideBank])
+@app.get("/Guider+Bank", response_model=List[TourGuideBank])
 def get_combined_data():
     combined_data = combine_tour_guide_bank()
     return combined_data
