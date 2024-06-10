@@ -222,6 +222,7 @@ def get_data_bank_from_web():
 # Model untuk Data Bank
 class Bank(BaseModel):
     id: int
+    saldo: int
     active_date: str
     expired_date: str
 
@@ -245,6 +246,36 @@ def get_bank_by_id_guider(id_guider: str):
     if filtered_data:
         return filtered_data
     raise HTTPException(status_code=404, detail="Data bank tidak ditemukan untuk id_guider tersebut.")
+
+# Fungsi untuk mengambil data hotel dari web hosting lain
+def get_data_hotel_from_web():
+    url = "https://hotelbaru.onrender.com/reviews"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()  
+    else:
+        raise HTTPException(status_code=response.status_code, detail="Gagal mengambil data HOTEL dari web hosting.")
+
+# Model untuk Data Hotel
+class Hotel(BaseModel):
+    ReviewID: str
+    ReservationID: str
+    Rating: int
+    Comment: str
+
+@app.get("/hotel", response_model=List[Hotel])
+def get_hotel():
+    data_hotel = get_data_hotel_from_web()
+    return data_hotel
+
+@app.get("/hotel/{RoomID}", response_model=Optional[Hotel])
+def get_hotel_by_id(RoomID: str):
+    data_hotel = get_data_hotel_from_web()
+    for hotel in data_hotel:
+        if hotel['RoomID'] == RoomID:
+            return Hotel(**hotel)
+    return None
+
 
 def combine_guider_wisata():
     guider_data = get_tourguide()
