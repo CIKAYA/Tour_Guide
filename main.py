@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 app = FastAPI(
     title="MC Tour Guide",
-    description="API TOUR GUIDE",
+    description="API untuk kelen yang butuh data dari MC Tour Guide",
     docs_url="/",
 )
 
