@@ -76,6 +76,15 @@ def delete_guider(id_guider: str):
     else:
         raise HTTPException(status_code=404, detail="Data Guider tidak ditemukan.")
 
+
+
+
+
+
+
+
+
+
 # Model for Insurance Data
 class Asuransi(BaseModel):
     id_asuransi: str
@@ -98,15 +107,23 @@ def get_data_asuransi_from_web():
 def get_asuransi():
     data_asuransi = get_data_asuransi_from_web()
     return data_asuransi
-
-# Endpoint to get insurance data by id_guider
-@app.get("/asuransi/{id_guider}", response_model=List[Asuransi])
-def get_asuransi_by_id_guider(id_guider: str):
+# Endpoint to get insurance data by id_asuransi
+@app.get("/asuransi/{id_asuransi}", response_model=List[Asuransi])
+def get_asuransi_by_id_asuransi(id_asuransi: str):
     data_asuransi = get_data_asuransi_from_web()
-    filtered_data = [item for item in data_asuransi if item.id_asuransi == id_guider]
+    filtered_data = [item for item in data_asuransi if item.id_asuransi == id_asuransi]
     if filtered_data:
         return filtered_data
-    raise HTTPException(status_code=404, detail="Data asuransi tidak ditemukan untuk id_guider tersebut.")
+    raise HTTPException(status_code=404, detail="Data asuransi tidak ditemukan untuk id_asuransi tersebut.")
+
+
+
+
+
+
+
+
+
 
 # Model untuk Data Objek Wisata
 class ObjekWisata(BaseModel):
@@ -134,14 +151,23 @@ def get_objekWisata():
     data_objekWisata = get_data_objekWisata_from_web()
     return data_objekWisata
 
-# Endpoint untuk mendapatkan data objek wisata berdasarkan id_guider
-@app.get("/objekWisata/{id_guider}", response_model=List[ObjekWisata])
-def get_objekWisata_by_id_guider(id_guider: str):
+# Endpoint untuk mendapatkan data objek wisata berdasarkan id_objekWisata
+@app.get("/objekWisata/{id_objekWisata}", response_model=List[ObjekWisata])
+def get_objekWisata_by_id_objekWisata(id_objekWisata: str):
     data_objekWisata = get_data_objekWisata_from_web()
-    filtered_data = [item for item in data_objekWisata if item.id_wisata == id_guider]
+    filtered_data = [item for item in data_objekWisata if item.id_wisata == id_objekWisata]
     if filtered_data:
         return filtered_data
-    raise HTTPException(status_code=404, detail="Data objek wisata tidak ditemukan untuk id_guider tersebut.")
+    raise HTTPException(status_code=404, detail="Data objek wisata tidak ditemukan untuk id_objekWisata tersebut.")
+
+
+
+
+
+
+
+
+
 
 # Model untuk Data government
 class Government(BaseModel):
@@ -165,21 +191,29 @@ def get_government():
     filtered_data = [item for item in data_government if item.nik in [111, 112, 113, 114, 115]]
     return filtered_data
 
-# Endpoint untuk mendapatkan data government berdasarkan id_guider
-@app.get("/government/{id_guider}", response_model=List[Government])
-def get_government_by_id_guider(id_guider: str):
+# Endpoint untuk mendapatkan data government berdasarkan nik
+@app.get("/government/{nik}", response_model=List[Government])
+def get_government_by_nik(nik: str):
     data_government = get_data_government_from_web()
-    filtered_data = [item for item in data_government if str(item.id_asuransi) == id_guider]
+    filtered_data = [item for item in data_government if str(item.nik) == nik]
     if filtered_data:
         return filtered_data
-    raise HTTPException(status_code=404, detail="Data government tidak ditemukan untuk id_guider tersebut.")
+    raise HTTPException(status_code=404, detail="Data government tidak ditemukan untuk nik tersebut.")
+
+
+
+
+
+
+
+
+
 
 # Model untuk Data Rental Mobil
 class RentalMobil(BaseModel):
     id_mobil: str
     merek: str
     nomor_polisi: str
-
 
 # Fungsi untuk mengambil data rental mobil dari web hosting lain
 def get_data_rental_mobil_from_web():
@@ -197,16 +231,22 @@ def get_rental_mobil():
     data_rental_mobil = get_data_rental_mobil_from_web()
     return data_rental_mobil
 
-# Endpoint untuk mendapatkan data rental mobil berdasarkan id_guider
-@app.get("/rental_mobil/{id_guider}", response_model=List[RentalMobil])
-def get_rental_mobil_by_id_guider(id_guider: str):
+# Endpoint untuk mendapatkan data rental mobil berdasarkan id_mobil
+@app.get("/rental_mobil/{id_mobil}", response_model=List[RentalMobil])
+def get_rental_mobil_by_id_mobil(id_mobil: str):
     data_rental_mobil = get_data_rental_mobil_from_web()
-    filtered_data = [item for item in data_rental_mobil if item.id_mobil == id_guider]
+    filtered_data = [item for item in data_rental_mobil if item.id_mobil == id_mobil]
     if filtered_data:
         return filtered_data
-    raise HTTPException(status_code=404, detail="Data rental mobil tidak ditemukan untuk id_guider tersebut.")
+    raise HTTPException(status_code=404, detail="Data rental mobil tidak ditemukan untuk id_mobil tersebut.")
 
-# Model untuk Data Bank
+
+
+
+
+
+
+
 
 
 # Fungsi untuk mengambil data bank dari web hosting lain
@@ -237,44 +277,50 @@ def get_bank_index(id):
 def get_bank():
     data_bank = get_data_bank_from_web()
     return data_bank
-
-# Endpoint untuk mendapatkan data bank berdasarkan id_guider
-@app.get("/bank/{id_guider}", response_model=List[Bank])
-def get_bank_by_id_guider(id_guider: str):
+# Endpoint untuk mendapatkan data bank berdasarkan id
+# Endpoint untuk mendapatkan data bank berdasarkan id
+@app.get("/bank/{id}", response_model=Bank)
+def get_bank_by_id(id: int):
     data_bank = get_data_bank_from_web()
-    filtered_data = [item for item in data_bank if str(item.id_transaksi) == id_guider]
-    if filtered_data:
-        return filtered_data
-    raise HTTPException(status_code=404, detail="Data bank tidak ditemukan untuk id_guider tersebut.")
+    for item in data_bank:
+        if item.id == id:
+            return item
+    raise HTTPException(status_code=404, detail="Data bank tidak ditemukan untuk id tersebut.")
 
-# Fungsi untuk mengambil data hotel dari web hosting lain
-def get_data_hotel_from_web():
-    url = "https://hotelbaru.onrender.com/reviews"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()  
-    else:
-        raise HTTPException(status_code=response.status_code, detail="Gagal mengambil data HOTEL dari web hosting.")
 
-# Model untuk Data Hotel
-class Hotel(BaseModel):
-    ReviewID: str
-    ReservationID: str
-    Rating: int
-    Comment: str
 
-@app.get("/hotel", response_model=List[Hotel])
-def get_hotel():
-    data_hotel = get_data_hotel_from_web()
-    return data_hotel
 
-@app.get("/hotel/{RoomID}", response_model=Optional[Hotel])
-def get_hotel_by_id(RoomID: str):
-    data_hotel = get_data_hotel_from_web()
-    for hotel in data_hotel:
-        if hotel['RoomID'] == RoomID:
-            return Hotel(**hotel)
-    return None
+
+
+
+
+
+# # Fungsi untuk mengambil data hotel dari web hosting lain
+# def get_data_hotel_from_web():
+#     url = "https://hotelbaru.onrender.com/reviews"
+#     response = requests.get(url)
+#     if response.status_code == 200:
+#         return response.json()  
+#     else:
+#         raise HTTPException(status_code=response.status_code, detail="Gagal mengambil data HOTEL dari web hosting.")
+
+# # Model untuk Data Hotel
+# class Hotel(BaseModel):
+#     ReviewID: str
+#     ReservationID: str
+#     Rating: int
+#     Comment: str
+
+# @app.get("/hotel", response_model=List[Hotel])
+# def get_hotel():
+#     data_hotel = get_data_hotel_from_web()
+#     return data_hotel
+
+# @app.get("/hotel/{RoomID}", response_model=Optional[Hotel])
+#def get_hotel_by_id(RoomID: str):
+#       if hotel['RoomID'] == RoomID:
+#            return Hotel(**hotel)
+#    return None
 
 
 def combine_guider_wisata():
