@@ -230,7 +230,7 @@ def get_data_rental_mobil_from_web():
 def get_rental_mobil():
     data_rental_mobil = get_data_rental_mobil_from_web()
     return data_rental_mobil
-
+ 
 # Endpoint untuk mendapatkan data rental mobil berdasarkan id_mobil
 @app.get("/rental_mobil/{id_mobil}", response_model=List[RentalMobil])
 def get_rental_mobil_by_id_mobil(id_mobil: str):
@@ -251,7 +251,7 @@ def get_rental_mobil_by_id_mobil(id_mobil: str):
 
 # Fungsi untuk mengambil data bank dari web hosting lain
 def get_data_bank_from_web():
-    url = "https://jumantaradev.my.id/api/biro-tour"  # Ganti dengan URL yang sebenarnya
+    url = "https://jumantaradev.my.id/api/biro-tour/" # Ganti dengan URL yang sebenarnya
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
@@ -279,14 +279,13 @@ def get_bank():
     return data_bank
 # Endpoint untuk mendapatkan data bank berdasarkan id
 # Endpoint untuk mendapatkan data bank berdasarkan id
-@app.get("/bank/{id}", response_model=Bank)
+@app.get("/bank/{id}", response_model=Optional[Bank])
 def get_bank_by_id(id: int):
     data_bank = get_data_bank_from_web()
-    for item in data_bank:
-        if item.id == id:
-            return item
-    raise HTTPException(status_code=404, detail="Data bank tidak ditemukan untuk id tersebut.")
-
+    for bank in data_bank:
+        if bank['id'] == id:
+            return Bank(**bank)
+    return None
 
 
 
