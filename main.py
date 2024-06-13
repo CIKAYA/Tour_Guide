@@ -6,7 +6,7 @@ from itertools import zip_longest
 
 app = FastAPI(
     title="MC Tour Guide",
-    description="API untuk kelen yang butuh data dari MC Tour Guide",
+    description="Kami menyediakan layanan pemandu wisata yang berpengalaman dan profesional untuk membantu perjalanan wisata Anda menjadi lebih menyenangkan.",
     docs_url="/",
 )
 
