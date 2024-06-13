@@ -2,6 +2,7 @@ import requests
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from itertools import zip_longest
 
 app = FastAPI(
     title="MC Tour Guide",
@@ -97,8 +98,7 @@ def get_data_asuransi_from_web():
     url = "https://eai-fastapi.onrender.com/asuransi"  # Ganti dengan URL yang benar
     response = requests.get(url)
     if response.status_code == 200:
-        data = response.json()
-        return [Asuransi(**item) for item in data]
+        return response.json()
     else:
         raise HTTPException(status_code=response.status_code, detail="Gagal mengambil data asuransi dari web hosting.")
 
@@ -107,6 +107,7 @@ def get_data_asuransi_from_web():
 def get_asuransi():
     data_asuransi = get_data_asuransi_from_web()
     return data_asuransi
+
 # Endpoint to get insurance data by id_asuransi
 @app.get("/asuransi/{id_asuransi}", response_model=List[Asuransi])
 def get_asuransi_by_id_asuransi(id_asuransi: str):
@@ -140,8 +141,7 @@ def get_data_objekWisata_from_web():
     url = "https://pajakobjekwisata.onrender.com/wisata"  # Ganti dengan URL yang sebenarnya
     response = requests.get(url)
     if response.status_code == 200:
-        data = response.json()
-        return [ObjekWisata(**item) for item in data]
+        return response.json()
     else:
         raise HTTPException(status_code=response.status_code, detail="Gagal mengambil data objek wisata dari web hosting.")
 
@@ -179,16 +179,14 @@ def get_data_government_from_web():
     url = "https://api-government.onrender.com/penduduk"  # Ganti dengan URL yang sebenarnya
     response = requests.get(url)    
     if response.status_code == 200:
-        data = response.json()
-        return [Government(**item) for item in data]
+        return response.json()
     else:
         raise HTTPException(status_code=response.status_code, detail="Gagal mengambil data government dari web hosting.")
-
 # Endpoint untuk mendapatkan data government
 @app.get("/government", response_model=List[Government])
 def get_government():
     data_government = get_data_government_from_web()
-    filtered_data = [item for item in data_government if item.nik in [111, 112, 113, 114, 115]]
+    filtered_data = [item for item in data_government if item.get('nik') in [111, 112, 113, 114, 115]]
     return filtered_data
 
 # Endpoint untuk mendapatkan data government berdasarkan nik
@@ -220,8 +218,7 @@ def get_data_rental_mobil_from_web():
     url = "https://rental-mobil-api.onrender.com/mobil"  # Ganti dengan URL yang sebenarnya
     response = requests.get(url)
     if response.status_code == 200:
-        data = response.json()
-        return [RentalMobil(**item) for item in data]
+        return response.json()
     else:
         raise HTTPException(status_code=response.status_code, detail="Gagal mengambil data rental mobil dari web hosting.")
 
@@ -278,7 +275,6 @@ def get_bank():
     data_bank = get_data_bank_from_web()
     return data_bank
 # Endpoint untuk mendapatkan data bank berdasarkan id
-# Endpoint untuk mendapatkan data bank berdasarkan id
 @app.get("/bank/{id}", response_model=Optional[Bank])
 def get_bank_by_id(id: int):
     data_bank = get_data_bank_from_web()
@@ -286,12 +282,6 @@ def get_bank_by_id(id: int):
         if bank['id'] == id:
             return Bank(**bank)
     return None
-
-
-
-
-
-
 
 
 # # Fungsi untuk mengambil data hotel dari web hosting lain
@@ -321,29 +311,234 @@ def get_bank_by_id(id: int):
 #            return Hotel(**hotel)
 #    return None
 
+class guiderasuransi(BaseModel):
+    id_asuransi : str
+    id_guider : str
+    premi : str
+    tanggal_mulai_asuransi: str
+    tanggal_selesai_asuransi: str
 
-def combine_guider_wisata():
-    guider_data = get_tourguide()
-    wisata_data = get_data_objekWisata_from_web()
+# Endpoint untuk mendapatkan data gabungan asuransi dan guider
+@app.get('/Guider+Asuransi', response_model=List[guiderasuransi])
+def get_asuransi_guider():
+    data_asuransi = get_data_asuransi_from_web()
 
-    
+    # Menggunakan zip_longest untuk menggabungkan data asuransi dan data guider
+    gabungan_data = []
+    for tourguide, asuransi in zip_longest(data_tourguide, data_asuransi,  fillvalue={}):
+        gabungan_data.append(guiderasuransi(
+            id_asuransi=asuransi.get('id_asuransi', None),
+            id_guider=tourguide.get('id_guider', None),
+            premi=asuransi.get('premi', None),
+            tanggal_mulai_asuransi=asuransi.get('tanggal_mulai_asuransi', None),
+            tanggal_selesai_asuransi=asuransi.get('tanggal_selesai_asuransi', None) 
+        ))
+    return gabungan_data
 
-    combined_data = [
-        {
-            "id_guider": tourguide['id_guider'],
-            "objekWisata": objek_wisata
-        }
-        for tourguide in guider_data
-        for objek_wisata in wisata_data
-    ]
+@app.get('/Guider+Asuransi/{id_guider}', response_model=guiderasuransi)
+def get_asuransi_guider_by_id(id_guider: str):
+    data_asuransi = get_data_asuransi_from_web()
 
-    return combined_data
+    # Menggunakan zip_longest untuk menggabungkan data asuransi dan data guider
+    for tourguide, asuransi in zip_longest(data_tourguide, data_asuransi,  fillvalue={}):
+        if tourguide.get('id_guider', None) == id_guider:
+            return guiderasuransi(
+                id_asuransi=asuransi.get('id_asuransi', None),
+                id_guider=tourguide.get('id_guider', None),
+                premi=asuransi.get('premi', None),
+                tanggal_mulai_asuransi=asuransi.get('tanggal_mulai_asuransi', None),
+                tanggal_selesai_asuransi=asuransi.get('tanggal_selesai_asuransi', None) 
+            )
+    return HTTPException(status_code=404, detail="Guider not found")
 
-class GuiderWisata(BaseModel):
+
+
+
+
+
+
+
+
+
+class guiderobjek(BaseModel):
+    id_wisata : str
+    id_guider : str
+    nama_objek: str
+    nama_daerah: str
+    kategori: str
+    alamat: str
+    kontak: str
+    harga_tiket: int
+
+# Endpoint untuk mendapatkan data gabungan objek wisata dan guider
+@app.get('/Guider+Objek', response_model=List[guiderobjek])
+def get_objekWisata_guider():
+    data_objekWisata = get_data_objekWisata_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data objek wisata dan data guider
+    gabungan_data = []
+    for tourguide, objek in zip_longest(data_tourguide, data_objekWisata,  fillvalue={}):
+        gabungan_data.append(guiderobjek(
+            id_wisata=objek.get('id_wisata', None),
+            id_guider=tourguide.get('id_guider', None),
+            nama_objek=objek.get('nama_objek', None),
+            nama_daerah=objek.get('nama_daerah', None),
+            kategori=objek.get('kategori', None),
+            alamat=objek.get('alamat', None),
+            kontak=objek.get('kontak', None),
+            harga_tiket=objek.get('harga_tiket', None)
+        ))
+    return gabungan_data
+
+@app.get('/Guider+Objek/{id_guider}', response_model=guiderobjek)
+def get_objekWisata_guider_by_id(id_guider: str):
+    data_objekWisata = get_data_objekWisata_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data asuransi dan data guider
+    for tourguide, objek in zip_longest(data_tourguide, data_objekWisata,  fillvalue={}):
+        if tourguide.get('id_guider', None) == id_guider:
+            return guiderobjek(
+                id_wisata=objek.get('id_wisata', None),
+                id_guider=tourguide.get('id_guider', None),
+                nama_objek=objek.get('nama_objek', None),
+                nama_daerah=objek.get('nama_daerah', None),
+                kategori=objek.get('kategori', None),
+                alamat=objek.get('alamat', None),
+                kontak=objek.get('kontak', None),
+                harga_tiket=objek.get('harga_tiket', None)
+            )
+    return HTTPException(status_code=404, detail="Guider not found")
+
+
+
+
+
+
+
+class guidergovern(BaseModel):
+    id_guider : str
+    nik:int
+    kota:str
+
+# Endpoint untuk mendapatkan data gabungan government dan guider
+@app.get('/Guider+Government', response_model=List[guidergovern])
+def get_government_guider():
+    data_government = get_data_government_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data government dan data guider
+    gabungan_data = []
+    for tourguide, govern in zip_longest(data_tourguide, data_government,  fillvalue={}):
+        gabungan_data.append(guidergovern(
+            id_guider=tourguide.get('id_guider', None),
+            nik=govern.get('nik', None),
+            kota=govern.get('kota', None)
+        ))
+    return gabungan_data
+
+@app.get('/Guider+Government/{id_guider}', response_model=guidergovern)
+def get_government_guider_by_id(id_guider: str):
+    data_government = get_data_government_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data government dan data guider
+    for tourguide, govern in zip_longest(data_tourguide, data_government,  fillvalue={}):
+        if tourguide.get('id_guider', None) == id_guider:
+            return guidergovern(
+                id_guider=tourguide.get('id_guider', None),
+                nik=govern.get('nik', None),
+                kota=govern.get('kota', None)
+            )
+    return HTTPException(status_code=404, detail="Guider not found")
+
+
+
+
+
+
+
+
+
+class guiderrental(BaseModel):
+    id_mobile: str
     id_guider: str
-    objekWisata: ObjekWisata
+    merek: str
+    nomor_polisi: str
 
-@app.get("/GuiderWisata", response_model=List[GuiderWisata])
-def get_combined_data():
-    combined_data = combine_guider_wisata()
-    return [GuiderWisata(**data) for data in combined_data]
+# Endpoint untuk mendapatkan data gabungan objek wisata dan guider
+@app.get('/Guider+Rental', response_model=List[guiderrental])
+def get_rental_guider():
+    data_rental_mobil = get_data_rental_mobil_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data objek wisata dan data guider
+    gabungan_data = []
+    for tourguide, rental in zip_longest(data_tourguide, data_rental_mobil,  fillvalue={}):
+        gabungan_data.append(guiderrental(
+            id_mobile=rental.get('id_mobil', None),
+            id_guider=tourguide.get('id_guider', None),
+            merek=rental.get('merek', None),
+            nomor_polisi=rental.get('nomor_polisi', None)
+        ))
+    return gabungan_data
+
+@app.get('/Guider+Rental/{id_guider}', response_model=guiderrental)
+def get_rental_guider_by_id(id_guider: str):
+    data_rental_mobil = get_data_rental_mobil_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data rental dan data guider
+    for tourguide, rental in zip_longest(data_tourguide, data_rental_mobil,  fillvalue={}):
+        if tourguide.get('id_guider', None) == id_guider:
+            return guiderrental(
+                id_mobile=rental.get('id_mobil', None),
+                id_guider=tourguide.get('id_guider', None),
+                merek=rental.get('merek', None),
+                nomor_polisi=rental.get('nomor_polisi', None)
+            )
+    return HTTPException(status_code=404, detail="Guider not found")
+
+
+
+
+
+
+
+
+
+class guiderbank(BaseModel):
+    id: int
+    id_guider: str
+    saldo: int
+    active_date: str
+    expired_date: str
+
+# Endpoint untuk mendapatkan data gabungan objek wisata dan guider
+@app.get('/Guider+Bank', response_model=List[guiderbank])
+def get_bank_guider():
+    data_bank = get_data_bank_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data objek wisata dan data guider
+    gabungan_data = []
+    for tourguide, bank in zip_longest(data_tourguide, data_bank,  fillvalue={}):
+        gabungan_data.append(guiderbank(
+            id=bank.get('id', None),
+            id_guider=tourguide.get('id_guider', None),
+            saldo=bank.get('saldo', None),
+            active_date=bank.get('active_date', None),
+            expired_date=bank.get('expired_date', None)
+    
+        ))
+    return gabungan_data
+
+@app.get('/Guider+Bank/{id_guider}', response_model=guiderbank)
+def get_bank_guider_by_id(id_guider: str):
+    data_bank = get_data_bank_from_web()
+
+    # Menggunakan zip_longest untuk menggabungkan data bank dan data guider
+    for tourguide, bank in zip_longest(data_tourguide, data_bank,  fillvalue={}):
+        if tourguide.get('id_guider', None) == id_guider:
+            return guiderbank(
+                id=bank.get('id', None),
+                id_guider=tourguide.get('id_guider', None),
+                saldo=bank.get('saldo', None),
+                active_date=bank.get('active_date', None),
+                expired_date=bank.get('expired_date', None)
+            )
+    return HTTPException(status_code=404, detail="Guider not found")
