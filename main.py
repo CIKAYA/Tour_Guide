@@ -109,14 +109,13 @@ def get_asuransi():
     return data_asuransi
 
 # Endpoint to get insurance data by id_asuransi
-@app.get("/asuransi/{id_asuransi}", response_model=List[Asuransi])
-def get_asuransi_by_id_asuransi(id_asuransi: str):
+@app.get("/asuransi/{id_asuransi}", response_model=Asuransi)
+def get_asuransi_by_id(id_asuransi: str):
     data_asuransi = get_data_asuransi_from_web()
-    filtered_data = [item for item in data_asuransi if item.id_asuransi == id_asuransi]
-    if filtered_data:
-        return filtered_data
-    raise HTTPException(status_code=404, detail="Data asuransi tidak ditemukan untuk id_asuransi tersebut.")
-
+    for item in data_asuransi:
+        if item['id_asuransi'] == id_asuransi:
+            return item
+    raise HTTPException(status_code=404, detail="Asuransi not found")
 
 
 
@@ -152,14 +151,13 @@ def get_objekWisata():
     return data_objekWisata
 
 # Endpoint untuk mendapatkan data objek wisata berdasarkan id_objekWisata
-@app.get("/objekWisata/{id_objekWisata}", response_model=List[ObjekWisata])
-def get_objekWisata_by_id_objekWisata(id_objekWisata: str):
+@app.get("/objekWisata/{id_wisata}", response_model=ObjekWisata)
+def get_objekWisata_by_id(id_wisata: str):
     data_objekWisata = get_data_objekWisata_from_web()
-    filtered_data = [item for item in data_objekWisata if item.id_wisata == id_objekWisata]
-    if filtered_data:
-        return filtered_data
-    raise HTTPException(status_code=404, detail="Data objek wisata tidak ditemukan untuk id_objekWisata tersebut.")
-
+    for item in data_objekWisata:
+        if item['id_wisata'] == id_wisata:
+            return item
+    raise HTTPException(status_code=404, detail="Objek Wisata not found")
 
 
 
@@ -190,15 +188,13 @@ def get_government():
     return filtered_data
 
 # Endpoint untuk mendapatkan data government berdasarkan nik
-@app.get("/government/{nik}", response_model=List[Government])
-def get_government_by_nik(nik: str):
+@app.get("/government/{nik}", response_model=Government)
+def get_government_by_nik(nik: int):
     data_government = get_data_government_from_web()
-    filtered_data = [item for item in data_government if str(item.nik) == nik]
-    if filtered_data:
-        return filtered_data
-    raise HTTPException(status_code=404, detail="Data government tidak ditemukan untuk nik tersebut.")
-
-
+    for item in data_government:
+        if item['nik'] == nik:
+            return item
+    raise HTTPException(status_code=404, detail="Government data not found")
 
 
 
@@ -229,16 +225,13 @@ def get_rental_mobil():
     return data_rental_mobil
  
 # Endpoint untuk mendapatkan data rental mobil berdasarkan id_mobil
-@app.get("/rental_mobil/{id_mobil}", response_model=List[RentalMobil])
-def get_rental_mobil_by_id_mobil(id_mobil: str):
+@app.get("/rental_mobil/{id_mobil}", response_model=RentalMobil)
+def get_rental_mobil_by_id(id_mobil: str):
     data_rental_mobil = get_data_rental_mobil_from_web()
-    filtered_data = [item for item in data_rental_mobil if item.id_mobil == id_mobil]
-    if filtered_data:
-        return filtered_data
-    raise HTTPException(status_code=404, detail="Data rental mobil tidak ditemukan untuk id_mobil tersebut.")
-
-
-
+    for item in data_rental_mobil:
+        if item['id_mobil'] == id_mobil:
+            return item
+    raise HTTPException(status_code=404, detail="Rental Mobil not found")
 
 
 
